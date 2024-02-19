@@ -1,8 +1,12 @@
 const express = require("express")
-const {getTopics} = require("./controller")
+const {getTopics, getDescriptions} = require("./controller")
 const app = express()
 
+app.use(express.json())
+
 app.get("/api/topics", getTopics);
+
+app.get("/api", getDescriptions)
 
 
 app.all("/*", (req, res, next) => {
