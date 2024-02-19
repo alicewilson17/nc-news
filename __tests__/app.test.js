@@ -3,6 +3,7 @@ const app = require("../app");
 const seed = require("../db/seeds/seed");
 const data = require("../db/data/test-data");
 const db = require("../db/connection");
+const jsondata = require('../endpoints.json');
 
 beforeEach(() => {
   return seed(data);
@@ -31,6 +32,20 @@ describe("GET /api/treasures", () => {
     })
   });
 });
+
+describe('GET /api description', () => {
+    test('Should respond with an object describing all endpoints', () => {
+    return request(app)
+        .get("/api")
+        .expect(200)
+        .then((res) => {
+expect(JSON.parse(res.text)).toEqual(jsondata)
+        })
+    })
+})
+
+
+
 
 describe("404 Path not found", () => {
   test("Returns 404 for path that doesnt exist", () => {
