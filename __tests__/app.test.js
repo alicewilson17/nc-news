@@ -117,6 +117,67 @@ describe("GET /api/articles", () => {
   });
 });
 
+describe('GET /api/articles/:article_id/comments', () => {
+  test('gets an array of all comments for a given article id', () => {
+    return request(app)
+    .get("/api/articles/1/comments")
+    .expect(200)
+    .then((res) => {
+      const comments = res.body.comments;
+      expect(comments.length).toBe(11);
+  comments.forEach((comment) => {
+        expect(comment).toMatchObject({
+          article_id: expect.any(Number),
+         comment_id: expect.any(Number),
+          author: expect.any(String),
+          body: expect.any(String),
+          created_at: expect.any(String),
+          votes: expect.any(Number),
+        });
+      });
+    });
+  });
+  test("GET all comments sorted by date desc", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then((res) => {
+        const comments = res.body.comments;
+        expect(comments).toBeSortedBy(
+          "created_at",
+          { coerce: true, descending: true }
+        );
+      });
+  });
+  test("should respond with an error if given an article_id of invalid type (not a number)", () => {
+    return request(app)
+      .get("/api/articles/string/comments")
+      .expect(400)
+      .then((res) => {
+        const error = res.body;
+        expect(error.msg).toBe("bad request");
+      });
+  });
+  test("should respond with error if given article_id of valid type but which doesnt exist in articles database", () => {
+    return request(app)
+      .get("/api/articles/50000/comments")
+      .expect(404)
+      .then((res) => {
+        const error = res.body;
+        expect(error.msg).toBe("id not found");
+      });
+  });
+  test('should return an empty array when give an article_id that exists but has no associated comments', () => {
+    return request(app)
+      .get("/api/articles/2/comments")
+      .expect(200)
+      .then((res) => {
+        const comments = res.body.comments;
+        expect(comments.length).toBe(0)
+      });
+  });
+});
+
 describe("404 Path not found", () => {
   test("Returns 404 for path that doesnt exist", () => {
     return request(app)
