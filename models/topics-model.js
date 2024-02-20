@@ -1,5 +1,5 @@
-const db = require("./db/connection")
-const descriptions = require("./endpoints.json")
+const db = require("../db/connection")
+const descriptions = require("../endpoints.json")
 const fs = require("fs/promises")
 
 exports.selectAllTopics = () => {
