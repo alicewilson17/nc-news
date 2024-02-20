@@ -1,6 +1,6 @@
 const express = require("express")
 const {getTopics, getDescriptions} = require("./controllers/topics-controller");
-const {getArticleById} = require("./controllers/articles-controller")
+const {getArticleById, getArticles} = require("./controllers/articles-controller")
 const { handleInvalidEndpoint, handleServerError, handlePSQLErrors, handleCustomErrors } = require("./controllers/errors.controllers");
 const app = express()
 
@@ -12,7 +12,7 @@ app.get("/api", getDescriptions)
 
 app.get("/api/articles/:article_id", getArticleById)
 
-
+app.get("/api/articles", getArticles)
 
 app.all("/*", handleInvalidEndpoint)
 
