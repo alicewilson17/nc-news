@@ -9,7 +9,7 @@
       "topics": [{ "slug": "football", "description": "Footie!" }]
     }
   },
-  "GET /api/articles": {
+  "xxxGET /api/articles": {
     "description": "serves an array of all articles",
     "queries": ["author", "topic", "sort_by", "order"],
     "exampleResponse": {
@@ -37,10 +37,28 @@
           "topic": "mitch",
           "author": "butter_bridge",
           "body": "I find this existence challenging",
-          "created_at": 1594329060000,
+          "created_at": "2020-01-07T14:08:00.000Z",
           "votes": 100,
           "article_img_url":
             "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        }
+      ]
+    }
+  },
+  "GET /api/articles": {
+    "description": "serves an array of all articles, sorted by date descending",
+    "queries": [],
+    "exampleResponse": {
+      "articles": [
+        {
+          "article_id": 7,
+          "title": "'Z'",
+          "author": "'icellusedkars'",
+          "topic": "'mitch'",
+          "created_at": "2020-01-07T14:08:00.000Z",
+          "votes": 0,
+          "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          "comment_count": "0"
         }
       ]
     }
