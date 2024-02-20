@@ -1,6 +1,6 @@
 const express = require("express")
-const {selectAllTopics} = require("./model")
-const jsondata = require('./endpoints.json')
+const {selectAllTopics} = require("../models/topics-model")
+const jsondata = require('../endpoints.json')
 
 exports.getTopics = (req,res,next) => {
 selectAllTopics()
@@ -18,4 +18,3 @@ exports.getDescriptions = (req,res,next) => {
         next(err)
     })
 }
-

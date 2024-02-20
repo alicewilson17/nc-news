@@ -44,7 +44,38 @@ expect(JSON.parse(res.text)).toEqual(jsondata)
     })
 })
 
-
+describe('GET /api/articles/:article_id', () => {
+  test('responds with the correct article', () => {
+    return request(app)
+    .get("/api/articles/2")
+    .expect(200)
+    .then((res) => {
+      const article = res.body.article
+      expect(article.title).toBe("Sony Vaio; or, The Laptop")
+      expect(article.votes).toBe(0)
+      expect(article.author).toBe("icellusedkars")
+      expect(article.topic).toBe("mitch")
+    })
+  });
+  test('should respond with an error if given an article_id of invalid type (not a number)', () => {
+    return request(app)
+    .get("/api/articles/string")
+    .expect(400)
+    .then((res) => {
+      const error = res.body
+      expect(error.msg).toBe("bad request")
+  });
+});
+test('should respond with error if given article_id of valid type but which doesnt exist in articles database', () => {
+  return request(app)
+    .get("/api/articles/50000")
+    .expect(404)
+    .then((res) => {
+      const error = res.body
+      expect(error.msg).toBe("id not found")
+  });
+});
+})
 
 
 describe("404 Path not found", () => {
