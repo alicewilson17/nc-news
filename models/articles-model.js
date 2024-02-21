@@ -17,3 +17,14 @@ exports.selectAllArticles = () => {
         return res.rows
     })
 }
+
+exports.updateArticle = (article_id, voteData) => {
+const {inc_votes} = voteData
+return db.query(`UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *`, [inc_votes, article_id])
+.then((res) => {
+    if (res.rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "Id not found" });
+    }
+    return res.rows[0]
+})
+}

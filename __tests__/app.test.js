@@ -245,6 +245,60 @@ describe('POST /api/articles/:article_id/comments', () => {
      })
     })
 
+describe('PATCH /api/articles/:article_id', () => {
+  test('should update the article to change the votes property, and return the updated article', () => {
+    const voteData = {inc_votes: 100}
+    return request(app)
+    .patch("/api/articles/1")
+    .send(voteData)
+    .expect(200)
+    .then((res) => {
+      const article = res.body.article
+      expect(article.article_id).toEqual(1)
+      expect(article.title).toEqual("Living in the shadow of a great man")
+      expect(article.topic).toEqual("mitch")
+      expect(article.author).toEqual("butter_bridge")
+      expect(article.body).toEqual("I find this existence challenging")
+      expect(typeof article.created_at).toBe("string")
+      expect(typeof article.article_img_url).toBe("string")
+      expect(article.votes).toEqual(200)
+      })
+  });
+  test('should respond with 400 error if body is not in correct format', () => {
+    const badVote = {inc_votes: "hello"}
+    return request(app)
+    .patch("/api/articles/1")
+    .send(badVote)
+    .expect(400)
+    .then((res) => {
+      const error = res.body;
+      expect(error.msg).toBe("bad request");
+    });
+});
+test('should respond with 400 error if article id is invalid type (not a number)', () => {
+  const voteData = {inc_votes: 100}
+  return request(app)
+  .patch("/api/articles/hello")
+  .send(voteData)
+  .expect(400)
+  .then((res) => {
+    const error = res.body;
+    expect(error.msg).toBe("bad request");
+  });
+});
+test("should respond with 404 error if given article_id of valid type but which doesnt exist in articles database", () => {
+  const voteData = {inc_votes: 100}
+  return request(app)
+    .patch("/api/articles/50000")
+    .send(voteData)
+    .expect(404)
+    .then((res) => {
+      const error = res.body;
+      expect(error.msg).toBe("Id not found");
+    });
+});
+})
+
 describe("404 Path not found", () => {
   test("Returns 404 for path that doesnt exist", () => {
     return request(app)
@@ -254,5 +308,7 @@ describe("404 Path not found", () => {
         const error = res.body;
         expect(error.msg).toBe("Path not found");
       });
+      
   });
-});
+
+})

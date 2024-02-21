@@ -1,5 +1,5 @@
 const express = require("express")
-const {fetchArticleById, selectAllArticles} = require("../models/articles-model")
+const {fetchArticleById, selectAllArticles, updateArticle} = require("../models/articles-model")
 
 
 exports.getArticleById = (req, res, next) => {
@@ -23,4 +23,15 @@ exports.getArticles = (req,res,next) => {
     })
     }
 
+exports.patchArticleById = (req,res,next) => {
+    const voteData = req.body
+    const {article_id} = req.params
+    updateArticle(article_id, voteData)
+    .then((article) => {
+        res.status(200).send({article})
+    })
+    .catch((err) => {
+        next(err)
+    })
+}
 
