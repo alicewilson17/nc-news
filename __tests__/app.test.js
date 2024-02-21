@@ -178,6 +178,73 @@ describe('GET /api/articles/:article_id/comments', () => {
   });
 });
 
+describe('POST /api/articles/:article_id/comments', () => {
+  test('should respond with the posted comment', () => {
+    const newComment = {username: "butter_bridge", body: "test comment"}
+    return request(app)
+    .post("/api/articles/2/comments")
+    .send(newComment)
+    .expect(201)
+    .then((res) => {
+      expect(res.body.comment).toEqual(
+        expect.objectContaining({
+              body: "test comment",
+              votes: expect.any(Number),
+              author: "butter_bridge",
+              article_id: 2,
+            created_at: expect.any(String),
+              comment_id: 19}))
+      })
+    })
+    test('should respond with 400 error if body is not in correct format', () => {
+      const badComment = {username: "butter_bridge", badinput: "wrong"}
+      return request(app)
+      .post("/api/articles/2/comments")
+      .send(badComment)
+      .expect(400)
+      .then((res) => {
+        const error = res.body;
+        expect(error.msg).toBe("bad request");
+      });
+    });
+    test("should respond with 400 error if given an article_id of invalid type (not a number)", () => {
+      const newComment = {username: "butter_bridge", body: "test comment"}
+      return request(app)
+        .post("/api/articles/string/comments")
+        .send(newComment)
+        .expect(400)
+        .then((res) => {
+          const error = res.body;
+          expect(error.msg).toBe("bad request");
+        });
+    });
+    test("should respond with 404 error if given article_id of valid type but which doesnt exist in articles database", () => {
+      const newComment = {username: "butter_bridge", body: "test comment"}
+      return request(app)
+        .post("/api/articles/50000/comments")
+        .send(newComment)
+        .expect(404)
+        .then((res) => {
+          const error = res.body;
+          expect(error.msg).toBe("Path not found");
+        });
+    });
+    });
+    test('should return error 400 when passed a comment with a username that doesnt exist', () => {
+      const newComment = {
+         username: 'Not in the database',
+         body: 'new comment'
+     }
+     return request(app)
+         .post('/api/articles/1/comments')
+         .send(newComment)
+         .expect(404)
+         .then((response) => {
+          
+          expect(response.body.msg).toBe('Path not found')   
+     })
+    })
+
 describe("404 Path not found", () => {
   test("Returns 404 for path that doesnt exist", () => {
     return request(app)

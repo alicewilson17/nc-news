@@ -1,5 +1,5 @@
 const express = require("express")
-const {fetchCommentsByArticleId} = require("../models/comments-model")
+const {fetchCommentsByArticleId, addCommentToArticle} = require("../models/comments-model")
 const {fetchArticleById} = require("../models/articles-model")
 
 exports.getCommentsByArticleId = (req,res,next) => {
@@ -12,6 +12,18 @@ exports.getCommentsByArticleId = (req,res,next) => {
   
     Promise.all(promises).then((promiseResolutions) => {
         res.status(200).send({comments: promiseResolutions[0]})
+    })
+    .catch((err) => {
+        next(err)
+    })
+}
+
+exports.postCommentOnArticle = (req, res, next) => {
+    const commentData = req.body;
+    const {article_id} = req.params;
+
+    addCommentToArticle(article_id, commentData).then((comment) => {
+        res.status(201).send({comment})
     })
     .catch((err) => {
         next(err)
