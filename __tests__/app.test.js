@@ -196,7 +196,24 @@ describe('POST /api/articles/:article_id/comments', () => {
               comment_id: 19}))
       })
     })
-    test('should respond with 400 error if body is not in correct format', () => {
+    test('should respond with the posted comment, ignoring additional properties on the request body', () => {
+      const newComment = {username: "butter_bridge", body: "test comment", extra: "ignore this"}
+      return request(app)
+      .post("/api/articles/2/comments")
+      .send(newComment)
+      .expect(201)
+      .then((res) => {
+        expect(res.body.comment).toEqual(
+          expect.objectContaining({
+                body: "test comment",
+                votes: expect.any(Number),
+                author: "butter_bridge",
+                article_id: 2,
+              created_at: expect.any(String),
+                comment_id: 19}))
+        })
+      })
+    test('should respond with 400 error if body property is missing', () => {
       const badComment = {username: "butter_bridge", badinput: "wrong"}
       return request(app)
       .post("/api/articles/2/comments")
@@ -207,6 +224,7 @@ describe('POST /api/articles/:article_id/comments', () => {
         expect(error.msg).toBe("bad request");
       });
     });
+
     test("should respond with 400 error if given an article_id of invalid type (not a number)", () => {
       const newComment = {username: "butter_bridge", body: "test comment"}
       return request(app)
@@ -264,7 +282,25 @@ describe('PATCH /api/articles/:article_id', () => {
       expect(article.votes).toEqual(200)
       })
   });
-  test('should respond with 400 error if body is not in correct format', () => {
+  test('should update the article, ignoring any unnecessary properties in the request body', () => {
+    const voteData = {inc_votes: 100, extra: "ignore this"}
+    return request(app)
+    .patch("/api/articles/1")
+    .send(voteData)
+    .expect(200)
+    .then((res) => {
+      const article = res.body.article
+      expect(article.article_id).toEqual(1)
+      expect(article.title).toEqual("Living in the shadow of a great man")
+      expect(article.topic).toEqual("mitch")
+      expect(article.author).toEqual("butter_bridge")
+      expect(article.body).toEqual("I find this existence challenging")
+      expect(typeof article.created_at).toBe("string")
+      expect(typeof article.article_img_url).toBe("string")
+      expect(article.votes).toEqual(200)
+      })
+  });
+  test('should respond with 400 error if inc_votes is not in correct format', () => {
     const badVote = {inc_votes: "hello"}
     return request(app)
     .patch("/api/articles/1")
@@ -274,6 +310,17 @@ describe('PATCH /api/articles/:article_id', () => {
       const error = res.body;
       expect(error.msg).toBe("bad request");
     });
+});
+test('should respond with 400 error if no inc_votes property', () => {
+  const badVote = {}
+  return request(app)
+  .patch("/api/articles/1")
+  .send(badVote)
+  .expect(400)
+  .then((res) => {
+    const error = res.body;
+    expect(error.msg).toBe("bad request");
+  });
 });
 test('should respond with 400 error if article id is invalid type (not a number)', () => {
   const voteData = {inc_votes: 100}
@@ -298,6 +345,41 @@ test("should respond with 404 error if given article_id of valid type but which 
     });
 });
 })
+
+describe('DELETE /api/comments/:comment_id', () => {
+  test('204 - should should delete the comment with the associated id and respond with no content', () => {
+    return request(app)
+    .delete("/api/comments/1")
+    .expect(204)
+    .then((res) => {
+      expect(res.body).toEqual({})
+      })
+    })
+  test('should respond with 400 error if invalid comment id type given', () => {
+    return request(app)
+    .delete("/api/comments/hello")
+    .expect(400)
+    .then((res) => {
+      const error = res.body;
+      expect(error.msg).toBe("bad request");
+    })
+  });
+  test('should respond with 404 error if given valid comment id that does not exist in comments database', () => {
+    return request(app)
+    .delete("/api/comments/40000")
+    .expect(404)
+    .then((res) => {
+      const error = res.body;
+      expect(error.msg).toBe("Comment not found");
+    })
+  });
+});
+
+
+
+
+
+
 
 describe("404 Path not found", () => {
   test("Returns 404 for path that doesnt exist", () => {

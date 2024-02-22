@@ -93,6 +93,11 @@
       }
     ]
   }
-}
+},
+"DELETE /api/comments/:comment_id": {
+  "description": "Deletes the comment with the associated comment_id, and responds with no content",
+  "queries": [],
+  "exampleResponse": {}
+  }
 }
 
