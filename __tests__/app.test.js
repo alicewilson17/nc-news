@@ -33,6 +33,25 @@ describe("GET /api/topics", () => {
   });
 });
 
+describe('GET /api/users', () => {
+  test('200 responds with array of user objects with correct properties', () => {
+    return request(app)
+    .get("/api/users")
+    .expect(200)
+    .then((res) => {
+      const users = res.body.users;
+      expect(users.length).toBe(4);
+      users.forEach((user) => {
+        expect(user).toMatchObject({
+          username: expect.any(String),
+          name: expect.any(String),
+          avatar_url: expect.any(String)
+        })
+      })
+    })
+  });
+});
+
 describe("GET /api description", () => {
   test("Should respond with an object describing all endpoints", () => {
     return request(app)
@@ -247,7 +266,6 @@ describe('POST /api/articles/:article_id/comments', () => {
           expect(error.msg).toBe("Path not found");
         });
     });
-    });
     test('should return error 400 when passed a comment with a username that doesnt exist', () => {
       const newComment = {
          username: 'Not in the database',
@@ -262,6 +280,7 @@ describe('POST /api/articles/:article_id/comments', () => {
           expect(response.body.msg).toBe('Path not found')   
      })
     })
+  })
 
 describe('PATCH /api/articles/:article_id', () => {
   test('should update the article to change the votes property, and return the updated article', () => {
