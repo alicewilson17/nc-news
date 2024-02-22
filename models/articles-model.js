@@ -11,11 +11,31 @@ exports.fetchArticleById = (article_id) => {
     })
 }
 
-exports.selectAllArticles = () => {
-    return db.query(`SELECT articles.article_id, articles.title, articles.author, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(CAST(comments.article_id AS float)) AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id GROUP BY articles.article_id ORDER BY created_at DESC`)
-    .then((res) => {
-        return res.rows
-    })
+exports.selectAllArticles = (topic) => {
+    let sqlString = `SELECT articles.article_id, articles.title, articles.author, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(CAST(comments.article_id AS float)) AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id`
+    const queryVals = []
+
+    if(topic) {
+        sqlString += ` WHERE topic = $1`
+        queryVals.push(topic)
+    }
+
+    sqlString += ` GROUP BY articles.article_id ORDER BY created_at DESC`
+
+    
+    return db.query(sqlString, queryVals)
+        .then((res) => {
+            if(res.rows.length === 0) {
+                return db.query(`SELECT * FROM topics WHERE slug = $1;`, [topic])
+                .then((topicCheck) => {
+                    if (topicCheck.rows.length === 0) {
+                        return Promise.reject({status: 404, msg: "Topic not found"})
+                }
+                else {return res.rows}
+            })
+            }
+           else{return res.rows}
+        })
 }
 
 exports.updateArticle = (article_id, voteData) => {
@@ -27,5 +47,9 @@ return db.query(`UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RE
     }
     return res.rows[0]
 })
+
+}
+
+const checkTopicExists = (topic) => {
 
 }

@@ -134,6 +134,37 @@ describe("GET /api/articles", () => {
         );
       });
   });
+  test('should take a topic query that returns only the articles of the given topic', () => {
+    return request(app)
+    .get("/api/articles?topic=cats")
+    .expect(200)
+    .then((res) => {
+      const articles = res.body.articles
+      expect(articles).toHaveLength(1)
+        articles.forEach((article) => {
+          expect(article.topic).toBe('cats')
+
+        })
+    })
+  });
+  test('should return an error when given a topic that doesnt exist in our topics database', () => {
+    return request(app)
+    .get("/api/articles?topic=dogs")
+    .expect(404)
+    .then((res) => {
+      const error = res.body
+      expect(error.msg).toBe("Topic not found")
+    })
+  });
+  test('should return an empty array when given a topic that exists but has no associated articles', () => {
+    return request(app)
+    .get("/api/articles?topic=paper")
+    .expect(200)
+    .then((res) => {
+      const {articles} = res.body
+      expect(articles.length).toBe(0)
+    })
+  });
 });
 
 describe('GET /api/articles/:article_id/comments', () => {
@@ -205,14 +236,13 @@ describe('POST /api/articles/:article_id/comments', () => {
     .send(newComment)
     .expect(201)
     .then((res) => {
-      expect(res.body.comment).toEqual(
-        expect.objectContaining({
+      expect(res.body.comment).toMatchObject({
               body: "test comment",
               votes: expect.any(Number),
               author: "butter_bridge",
               article_id: 2,
             created_at: expect.any(String),
-              comment_id: 19}))
+              comment_id: 19})
       })
     })
     test('should respond with the posted comment, ignoring additional properties on the request body', () => {
@@ -222,14 +252,14 @@ describe('POST /api/articles/:article_id/comments', () => {
       .send(newComment)
       .expect(201)
       .then((res) => {
-        expect(res.body.comment).toEqual(
-          expect.objectContaining({
+        expect(res.body.comment.hasOwnProperty('extra')).toBe(false)
+        expect(res.body.comment).toMatchObject({
                 body: "test comment",
                 votes: expect.any(Number),
                 author: "butter_bridge",
                 article_id: 2,
               created_at: expect.any(String),
-                comment_id: 19}))
+                comment_id: 19})
         })
       })
     test('should respond with 400 error if body property is missing', () => {
@@ -366,13 +396,10 @@ test("should respond with 404 error if given article_id of valid type but which 
 })
 
 describe('DELETE /api/comments/:comment_id', () => {
-  test('204 - should should delete the comment with the associated id and respond with no content', () => {
+  test('204 - should should delete the comment with the associated id', () => {
     return request(app)
     .delete("/api/comments/1")
     .expect(204)
-    .then((res) => {
-      expect(res.body).toEqual({})
-      })
     })
   test('should respond with 400 error if invalid comment id type given', () => {
     return request(app)
