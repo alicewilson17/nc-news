@@ -25,3 +25,7 @@ next(err)
 exports.handleServerError = ((err, req, res, next) => {
     res.status(500).send({msg: "Internal server error!"})
 })
+
+exports.handleBadMethod = (req, res, next) => {
+    res.status(405).send({ msg: "Method not allowed" });
+  };
