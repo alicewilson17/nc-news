@@ -75,7 +75,22 @@ describe("GET /api/articles/:article_id", () => {
         expect(article.author).toBe("icellusedkars");
         expect(article.topic).toBe("mitch");
         expect(article.article_id).toBe(2);
+        expect(article.comment_count).toBe("0")
+        expect(typeof article.body).toBe("string")
+        expect(typeof article.created_at).toBe("string")
+        expect(typeof article.article_img_url).toBe("string")
       });
+  });
+  test('article response object should contain comment_count property', () => {
+    return request(app)
+    .get("/api/articles/1")
+    .expect(200)
+    .then((res) => {
+      const article = res.body.article;
+      expect(article.comment_count).toBe("11")
+      expect(article.title).toBe("Living in the shadow of a great man");
+      expect(article.article_id).toBe(1);
+    });
   });
   test("should respond with an error if given an article_id of invalid type (not a number)", () => {
     return request(app)

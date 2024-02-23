@@ -2,7 +2,7 @@ const db = require("../db/connection");
 const fs = require('fs/promises')
 
 exports.fetchArticleById = (article_id) => {
-    return db.query(`SELECT * FROM articles WHERE article_id = $1`, [article_id])
+    return db.query(`SELECT articles.*, COUNT(CAST(comments.article_id AS int)) AS comment_count FROM articles LEFT JOIN comments on articles.article_id = comments.article_id WHERE articles.article_id = $1 GROUP BY articles.article_id;`, [article_id])
     .then((response) => {
          if (response.rows.length === 0) {
       return Promise.reject({ status: 404, msg: "id not found" });
@@ -47,9 +47,5 @@ return db.query(`UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RE
     }
     return res.rows[0]
 })
-
-}
-
-const checkTopicExists = (topic) => {
 
 }
