@@ -11,7 +11,13 @@ exports.fetchArticleById = (article_id) => {
     })
 }
 
-exports.selectAllArticles = (topic) => {
+exports.selectAllArticles = (topic, sort_by = 'created_at', order = 'desc') => {
+    const validSortBys = ["article_id", "title", "author", "topic", "created_at", "votes", "article_img_url", "comment_count"]
+    const validOrderBys = ["asc", "desc"]
+if (!validSortBys.includes(sort_by) || !validOrderBys.includes(order)) {
+    return Promise.reject({status: 400, msg: "Bad request"})
+}
+
     let sqlString = `SELECT articles.article_id, articles.title, articles.author, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(CAST(comments.article_id AS float)) AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id`
     const queryVals = []
 
@@ -20,7 +26,7 @@ exports.selectAllArticles = (topic) => {
         queryVals.push(topic)
     }
 
-    sqlString += ` GROUP BY articles.article_id ORDER BY created_at DESC`
+    sqlString += ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order}`
 
     
     return db.query(sqlString, queryVals)

@@ -134,7 +134,7 @@ describe("GET /api/articles", () => {
         });
       });
   });
-  test("GET all articles sorted by date desc", () => {
+  test("GET all articles sorted by created_at date desc as default", () => {
     return request(app)
       .get("/api/articles")
       .expect(200)
@@ -149,6 +149,30 @@ describe("GET /api/articles", () => {
         );
       });
   });
+  test('should respond with all articles sorted by the column name given ', () => {
+    return request(app)
+    .get("/api/articles?sort_by=comment_count")
+    .expect(200)
+    .then((res) => {
+      const articles = res.body.articles;
+      expect(articles).toBeSortedBy(
+        "comment_count",
+        { coerce: true, descending: true }
+      );
+    })
+  });
+  test('should respond with all articles ordered by order given', () => {
+    return request(app)
+      .get("/api/articles?order=asc")
+      .expect(200)
+      .then((res) => {
+        const articles = res.body.articles;
+        expect(articles).toBeSortedBy(
+          "created_at",
+          { coerce: true, ascending: true }
+        );
+      });
+  });
   test('should take a topic query that returns only the articles of the given topic', () => {
     return request(app)
     .get("/api/articles?topic=cats")
@@ -160,6 +184,24 @@ describe("GET /api/articles", () => {
           expect(article.topic).toBe('cats')
 
         })
+    })
+  });
+  test('should return a 400 error when passed an invalid sort_by', () => {
+    return request(app)
+    .get("/api/articles?sort_by=invalidsort")
+    .expect(400)
+    .then((res) => {
+      const error = res.body
+      expect(error.msg).toBe("Bad request")
+    })
+  });
+  test('should return a 400 error when passed an invalid order', () => {
+    return request(app)
+    .get("/api/articles?order=invalidorder")
+    .expect(400)
+    .then((res) => {
+      const error = res.body
+      expect(error.msg).toBe("Bad request")
     })
   });
   test('should return an error when given a topic that doesnt exist in our topics database', () => {
