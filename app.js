@@ -6,7 +6,9 @@ const { handleInvalidEndpoint, handleServerError, handlePSQLErrors, handleCustom
 const { getUsers } = require("./controllers/users-controllers");
 const app = express()
 const apiRouter = require("./routes/api-router")
+const cors = require('cors')
 
+app.use(cors())
 app.use(express.json())
 
 app.use("/api", apiRouter);
