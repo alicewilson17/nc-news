@@ -353,7 +353,7 @@ describe('POST /api/articles/:article_id/comments', () => {
           expect(error.msg).toBe("Path not found");
         });
     });
-    test('should return error 400 when passed a comment with a username that doesnt exist', () => {
+    test('should return error 404 when passed a comment with a username that doesnt exist', () => {
       const newComment = {
          username: 'Not in the database',
          body: 'new comment'
@@ -364,7 +364,7 @@ describe('POST /api/articles/:article_id/comments', () => {
          .expect(404)
          .then((response) => {
           
-          expect(response.body.msg).toBe('Path not found')   
+          expect(response.body.msg).toBe('User does not exist')   
      })
     })
   })
