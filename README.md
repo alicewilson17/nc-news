@@ -19,7 +19,7 @@ To set up your own version of this repository, follow the instructions below.
 1. In the command line, navigate to the folder you wish to work from, and run the following code:
 ```
 git clone https://github.com/alicewilson17/nc-news.git
-cd nc_news
+cd be-nc-news
 ```
 
 2. Open the directory in your code editor of choice, e.g. VSCode.
